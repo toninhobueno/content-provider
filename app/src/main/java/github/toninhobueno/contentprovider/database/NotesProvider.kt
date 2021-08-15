@@ -43,7 +43,7 @@ class NotesProvider : ContentProvider() {
 
     override fun getType(uri: Uri): String = throw UnsupportedSchemeException("Uri inválida para exclusão")
 
-    override fun insert(uri: Uri, values: ContentValues?): Uri? {
+    override fun insert(uri: Uri, values: ContentValues?): Uri {
        if (mUriMatcher.match(uri) == NOTES) {
            val db : SQLiteDatabase = dbHelper.writableDatabase
            val id : Long = db.insert(TABLE_NOTES,null,values)
@@ -61,18 +61,18 @@ class NotesProvider : ContentProvider() {
     override fun query(
         uri: Uri, projection: Array<String>?, selection: String?,
         selectionArgs: Array<String>?, sortOrder: String?
-    ): Cursor? {
+    ): Cursor {
         return when{
             mUriMatcher.match(uri) == NOTES -> {
                 val db : SQLiteDatabase = dbHelper.writableDatabase
-                val cursor = db.query(TABLE_NOTES,projection,selection,selectionArgs,null,null,sortOrder)
+                val cursor : Cursor = db.query(TABLE_NOTES,projection,selection,selectionArgs,null,null,sortOrder)
                 cursor.setNotificationUri(context?.contentResolver,uri)
                 cursor
             }
             mUriMatcher.match(uri) == NOTES_BY_ID -> {
                 val db : SQLiteDatabase = dbHelper.writableDatabase
-                val cursor = db.query(TABLE_NOTES,projection,"$_ID = ?", arrayOf(uri.lastPathSegment),null,null,sortOrder)
-                cursor.setNotificationUri((context as Context).contentResolver,uri)
+                val cursor : Cursor = db.query(TABLE_NOTES,projection,"$_ID = ?", arrayOf(uri.lastPathSegment),null,null,sortOrder)
+                cursor.setNotificationUri(context?.contentResolver,uri)
                 cursor
             }
             else -> {
@@ -99,7 +99,7 @@ class NotesProvider : ContentProvider() {
     companion object {
         const val AUTHORITY = "github.toninhobueno.contentprovider.provider"
 
-        val BASE_URI = Uri.parse("content://$AUTHORITY")
+        val BASE_URI: Uri = Uri.parse("content://$AUTHORITY")
         val URI_NOTES = Uri.withAppendedPath(BASE_URI,"notes")
 
         // content://github.toninhobueno.contentprovider.provider/notes
